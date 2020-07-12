@@ -9,7 +9,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.TreeMap;
+import java.util.LinkedList;
 
 /**
  *
@@ -57,40 +57,72 @@ public final class files {
         //deklarasi variabel lokal
         String read;
         String delimiter = "\\s+|,\\s*|\\.\\s*"; 
-        
-        //membuat TreeMap
-        TreeMap<String, Integer> word = new TreeMap<String, Integer>();
-        
+        int j =0;
+
+        //membuat linked list
+        LinkedList<LinkedList<String>> list = new LinkedList<>();
+        //LinkedList<String> sublists;
         //membaca file secara line by line
         while ((read = reader.readLine()) != null) {
-            
+            //sublists = new LinkedList<>();
+            list.add(new LinkedList<String>());
             //memisahkan sebaris string menjadi kata per kata
             //memasukkan masing masing kata ke dalam array string
-            String[] splited = read.toLowerCase().split(delimiter);
-            
-            //memasukkan kata dalam array string ke dalam TreeMap
+            String[] splited = read.split("\\s+");
             for (int i = 0; i < splited.length; i++) {
+                //sublists.add(splited[i]);
+//                list.add(splited[i]);
+                list.get(j).add(splited[i]);
+            }
+            //list.add(sublists);
+            //memasukkan kata dalam array string ke dalam TreeMap
+            j++;
+        }
+        printList(list);
+        //menampilkan TreeMap ke layar (key, value)
+        //word.entrySet().forEach((words) -> {
+          //  System.out.println(words.getKey() + " = " + words.getValue());
+        //});
+        reader.close();
+    }
+    
+    
+    public void printList(LinkedList l) {
+        for (int i = 0; i < l.size(); i++) {
+            
+            LinkedList<String> get = (LinkedList<String>) l.get(i);
+            for (int j = 0; j < get.size(); j++) {
                 
-                Integer frequent = word.get(splited[i]);
-                
-                //memeriksa agar masing masing key dalam TreeMap tidak sama
-                //jika key yang diperiksa belum terdapat dalam TreeMap, key tersebut akan disimpan dalam tree dan valuenya akan diset menjadi 1
-                //jika terdapat key yang sama, value dari key tersebut akan bertambah 1
-                if (word.get(splited[i]) == null) {
-                    
-                    word.put(splited[i], 1);
- 
-                } else {
-                    
-                    word.put(splited[i], ++frequent);
-                }              
+                System.out.print(get.get(j) + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    
+    public void replace(String oldWord, String newWord, LinkedList l) {
+        boolean find = false;
+
+        for (int i = 0; i < l.size(); i++) {
+
+            LinkedList<String> sublists = (LinkedList<String>) l.get(i);
+            for (int j = 0; j < sublists.size(); j++) {
+
+                String temp = String.valueOf(sublists.get(j));
+
+                if (temp.equalsIgnoreCase(oldWord)) {
+                    sublists.set(j, newWord);
+                    find = true;
+                }
             }
         }
 
-        //menampilkan TreeMap ke layar (key, value)
-        word.entrySet().forEach((words) -> {
-            System.out.println(words.getKey() + " = " + words.getValue());
-        });
-        reader.close();
+        if (find == false) {
+            System.out.println("There is no word " + oldWord + " in this file");
+        }
+    }
+
+    public void find(String word, boolean found){
+        found = true;
     }
 }

@@ -29,7 +29,7 @@ public class MyWorks {
         System.out.print("input nama file: ");
         String fileName = in.nextLine();
         
-        //gunakan try-catch untuk mengantisipasi 
+        //gunakan IOException untuk mengantisipasi 
         /*  Reading a network file and got disconnected.
             Reading a local file that was no longer available.
             Using some stream to read data and some other process closed the stream.
@@ -41,6 +41,14 @@ public class MyWorks {
         try {
             //membuat object files baru
             files myFile = new files(fileName);
+            boolean found = false;
+            //membaca kata yang akan diganti
+            while(!found){
+                String oldWord = in.next();
+                
+                //find and replace
+                myFile.find(oldWord, found);
+            }
             
             //melakukan print frekuensi kata yang muncul dalam file
             myFile.printFreq();
@@ -49,7 +57,9 @@ public class MyWorks {
             
             //open file gagal
             Logger.getLogger(MyWorks.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        }       
     }
+    
+   
 }
+
