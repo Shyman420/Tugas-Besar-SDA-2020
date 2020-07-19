@@ -1,14 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package myworks;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.FileWriter;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -16,30 +11,28 @@ import java.util.Scanner;
  *
  * @author Icad
  */
-
-// Mengapa menggunakan final class?
-/*
- * Karena class ini tidak akan mempunyai subclass. Pada konstruktor memiliki
- * permasalahan akan berpotensi teroverride jika tidak menggunakan final class.
- * 
- */
+//Mengapa menggunakan final class?
+/*Karena class ini tidak akan mempunyai subclass. Pada konstruktor
+memiliki permasalahan akan berpotensi teroverride jika tidak menggunakan
+final class.*/
 public final class files {
 
-    // deklarasi
+    //deklarasi
     private String filePath;
     private String fileName;
-    private BufferedReader reader = null;
 
     // konstruktor
     // Membuat objek files baru
     // Parameter : String fileName
-    // Berfungsi untuk melengkapi filePath
+    // Berfungsi untuk melengkapi filePath 
     public files(String fileName) throws FileNotFoundException {
 
+        //set fileName dari input user
         setFileName(fileName);
-        // set filePath
+
+        //set filePath
         setPath(fileName);
-        reader = new BufferedReader(new FileReader(filePath));
+
     }
 
     // setPath
@@ -58,88 +51,127 @@ public final class files {
     // Parameter : String fileName
     // I.S : sembarang fileName
     // F.S : value fileName sudah diset
-    public void setFileName(String fileName){
+    public void setFileName(String fileName) {
+
         this.fileName = fileName;
     }
 
     // read()
-    // Procedure untuk membaca file
+    // Procedure untuk membaca file 
     //
     public void read() throws IOException {
 
-        // deklarasi variabel lokal
+        //deklarasi variabel lokal
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
         String read;
         String delimiter = "\\s+|,\\s*|\\.\\s*";
         int j = 0;
-
-        // membuat linked list
+        
+        //membuat linked list
         LinkedList<LinkedList<String>> list = new LinkedList<>();
 
-        // membaca file secara line by line
+        //membaca file secara line by line
         while ((read = reader.readLine()) != null) {
 
             list.add(new LinkedList<String>());
 
-            // memisahkan sebaris string menjadi kata per kata
-            // memasukkan masing masing kata ke dalam array of string
+            //memisahkan sebaris string menjadi kata per kata
+            //memasukkan masing masing kata ke dalam array string
             String[] splited = read.split(delimiter);
 
             for (int i = 0; i < splited.length; i++) {
 
                 list.get(j).add(splited[i]);
+
             }
 
             j++;
         }
+
         printList(list);
         findReplace(list);
 
         reader.close();
     }
 
-    public void printList(LinkedList l) {
-        for (int i = 0; i < l.size(); i++) {
+    // printList()
+    // Procedure untuk menampilkan list (isi file) ke layar
+    //
+    public void printList(LinkedList list) {
 
-            LinkedList<String> get = (LinkedList<String>) l.get(i);
-            for (int j = 0; j < get.size(); j++) {
+        System.out.println("\nIsi File :");
 
-                System.out.print(get.get(j) + " ");
+        for (int i = 0; i < list.size(); i++) {
+            // Memisahkan isi file per satu baris
+            LinkedList<String> sublists = (LinkedList<String>) list.get(i);
+
+            // Memisahkan sebaris string menjadi kata per kata
+            for (int j = 0; j < sublists.size(); j++) {
+                System.out.print(sublists.get(j) + " ");
             }
             System.out.println();
         }
     }
 
-    public void findReplace(LinkedList l) {
-        Scanner in = new Scanner(System.in);
-        boolean found = false;        
+    // findReplace()
+    // Procedure untuk mencari kata yang ingin diganti dan mengganti kata tersebut dengan kata baru
+    //
+    public void findReplace(LinkedList list) throws IOException {
 
-        // membaca kata yang akan diganti
-        System.out.print("\nMasukkan kata yang ingin diganti : ");
-        String oldWord = in.nextLine();
-
-        System.out.print("Masukkan kata pengganti : ");
-        String newWord = in.nextLine();
-
-        for (int i = 0; i < l.size(); i++) {
-
-            LinkedList<String> sublists = (LinkedList<String>) l.get(i);
-            for (int j = 0; j < sublists.size(); j++) {
-
-                String temp = String.valueOf(sublists.get(j));
-
-                if (temp.equalsIgnoreCase(oldWord)) {
-                    sublists.set(j, newWord);
-                    found = true;
+        try (Scanner in = new Scanner(System.in)) {
+            boolean found = false;
+            
+            // membaca kata yang akan di replace
+            System.out.print("\nMasukkan kata yang akan diganti : ");
+            String oldWord = in.nextLine();
+            
+            System.out.print("Masukkan kata pengganti : ");
+            String newWord = in.nextLine();
+            
+            for (int i = 0; i < list.size(); i++) {
+                // Memisahkan isi file per satu baris
+                LinkedList<String> sublists = (LinkedList<String>) list.get(i);
+                
+                for (int j = 0; j < sublists.size(); j++) {
+                    // Memisahkan sebaris string menjadi kata per kata
+                    String temp = sublists.get(j);
+                    
+                    // Membandingkan kata yang dicari dengan kata yang terdapat di dalam list
+                    if (temp.equalsIgnoreCase(oldWord)) {
+                        sublists.set(j, newWord);
+                        found = true;
+                    }
                 }
             }
+            
+            if (found == false) {
+                System.out.println("Tidak ada kata '" + oldWord + "' di dalam file.");
+            } else {
+                printList(list);
+                printToFile(list);
+            }
         }
+    }
 
-        if (found == false) {
-            System.out.println("There is no word '" + oldWord + "' in this file");
-        } else {
-            printList(l);
+    // printToFile()
+    // Prosedur untuk menulis list ke dalam file
+    //
+    public void printToFile(LinkedList list) throws IOException {
+        setFileName("new" + fileName);
+        setPath(fileName);
+        try (FileWriter filewriter = new FileWriter(filePath)) {
+            for (int i = 0; i < list.size(); i++) {
+                // Memisahkan isi file per satu baris
+                LinkedList<String> sublists = (LinkedList<String>) list.get(i);
+                
+                // Memisahkan sebaris string menjadi kata per kata
+                for (int j = 0; j < sublists.size(); j++) {
+                    
+                    // Menulis isi list ke dalam file
+                    filewriter.write(sublists.get(j) + " ");
+                }
+                filewriter.write("\n");
+            }
         }
-
-        in.close();
     }
 }
